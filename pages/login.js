@@ -19,11 +19,7 @@ module.exports = class Login {
   getPassword() {
     return this.#driver.findElement(By.name("password"));
   }
-  //   getLoginBtn() {
-  //     return this.#driver.findElement(By.name("login"));
-  //   }
-  async getLoginBtn() {
-    const buttonLogin = await this.#driver.findElement(By.name("login"));
-    await buttonLogin.click();
+  getLoginBtn() {
+    return this.#driver.findElement(By.name("login")).click();
   }
 };

@@ -45,8 +45,8 @@ describe("Shop.qa.rs test", () => {
   it("Login user", async () => {
     await shopQaLoginPage.goToLoginPage();
     expect(await shopQaLoginPage.getH2()).to.equal("Prijava");
-    await shopQaLoginPage.getUserName().sendKeys("Milan");
-    await shopQaLoginPage.getPassword().sendKeys("Milan123");
+    await shopQaLoginPage.getUserName().sendKeys("Milance");
+    await shopQaLoginPage.getPassword().sendKeys("milan123");
     await shopQaLoginPage.getLoginBtn();
     expect(await shopQaHomepage.getWelcomeMesage()).to.contain("Welcome back,");
   });
