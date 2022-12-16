@@ -21,7 +21,7 @@ describe("Shop.qa.rs test", () => {
     shopQaLoginPage = new Login(driver);
   });
   after(async () => {
-    await driver.sleep(2000);
+    // await driver.sleep(3000);
     await driver.quit();
   });
   it("Open Shop.qa.rs", async () => {
@@ -37,8 +37,8 @@ describe("Shop.qa.rs test", () => {
     await shopQaRegisterpage.getLastName().sendKeys("Pilic");
     await shopQaRegisterpage.getEmail().sendKeys("milan@loc.local");
     await shopQaRegisterpage.getUserName().sendKeys("Milance");
-    await shopQaRegisterpage.getPassword().sendKeys("milan123");
-    await shopQaRegisterpage.getConfirmPassword().sendKeys("milan123");
+    await shopQaRegisterpage.getPassword().sendKeys("Milan123");
+    await shopQaRegisterpage.getConfirmPassword().sendKeys("Milan123");
     await shopQaRegisterpage.getRegisterBtn();
     expect(await shopQaHomepage.getLoginMesage()).to.contain("Uspeh!");
   });
@@ -46,8 +46,16 @@ describe("Shop.qa.rs test", () => {
     await shopQaLoginPage.goToLoginPage();
     expect(await shopQaLoginPage.getH2()).to.equal("Prijava");
     await shopQaLoginPage.getUserName().sendKeys("Milance");
-    await shopQaLoginPage.getPassword().sendKeys("milan123");
+    await shopQaLoginPage.getPassword().sendKeys("Milan123");
     await shopQaLoginPage.getLoginBtn();
     expect(await shopQaHomepage.getWelcomeMesage()).to.contain("Welcome back,");
+  });
+  it("Shop Starter Quantity: 6", async () => {
+    expect(await shopQaHomepage.getWelcomeMesage()).to.contain("Welcome back,");
+    await shopQaHomepage.getStarterQuantity();
+    assert.equal(await shopQaHomepage.getStarterOrderQuantity(), "6");
+  });
+  it("Checkout", async () => {
+    await shopQaHomepage.getCheckout();
   });
 });
