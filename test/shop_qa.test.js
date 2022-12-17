@@ -14,6 +14,10 @@ describe("Shop.qa.rs test", () => {
   let shopQaHomepage;
   let shopQaRegisterpage;
   let shopQaLoginPage;
+
+  const packageToAdd = "starter";
+  const packageQuantity = "2";
+
   before(() => {
     driver = new webdriver.Builder().forBrowser("chrome").build();
     shopQaHomepage = new Homepage(driver);
@@ -50,10 +54,29 @@ describe("Shop.qa.rs test", () => {
     await shopQaLoginPage.getLoginBtn();
     expect(await shopQaHomepage.getWelcomeMesage()).to.contain("Welcome back,");
   });
-  it("Shop Starter Quantity: 6", async () => {
-    expect(await shopQaHomepage.getWelcomeMesage()).to.contain("Welcome back,");
-    await shopQaHomepage.getStarterQuantity();
-    assert.equal(await shopQaHomepage.getStarterOrderQuantity(), "6");
+  it("Add item to cart", async () => {
+    const packageDiv = await shopQaHomepage.getPackageDiv(packageToAdd);
+    const quantity = await shopQaHomepage.getQuantityDropdown(packageDiv);
+    const options = await shopQaHomepage.getQuantityOptions(quantity);
+
+    await Promise.all(
+      options.map(async (option) => {
+        const text = await option.getText();
+        if (text === packageQuantity) {
+          await option.click();
+
+          const selectedValue = await quantity.getAttribute("value");
+          expect(selectedValue).to.contain(packageQuantity);
+
+          const buttonOrder = await shopQaHomepage.getOrderBtn(packageDiv);
+          await buttonOrder.click();
+
+          expect(await driver.getCurrentUrl()).to.contain(
+            "http://shop.qa.rs/order"
+          );
+        }
+      })
+    );
   });
   it("Checkout", async () => {
     await shopQaHomepage.getCheckout();

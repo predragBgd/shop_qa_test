@@ -20,26 +20,20 @@ module.exports = class Homepage {
     await this.#driver.wait(until.elementLocated(By.xpath(`//h2`)));
     return this.#driver.findElement(By.xpath(`//h2`)).getText();
   }
-  async getStarterQuantity() {
-    const starterQuantity = await this.#driver.findElement(By.name("quantity"));
-    starterQuantity.click();
-    const starterQuantityValue = await this.#driver.findElement(
-      By.xpath(
-        `/html/body/div[2]/div[4]/div[2]/div/div[2]/form/p[3]/select/option[6]`
-      )
-    );
-    await starterQuantityValue.click();
-    const starterBtn = await this.#driver.findElement(
-      By.xpath(`/html/body/div[2]/div[4]/div[2]/div/div[2]/form/p[4]/input`)
-    );
-    starterBtn.click();
+  getPackageDiv(title) {
+    const packageXpath = `//h3[contains(text(), "${title}")]/ancestor::div[contains(@class, "panel")]
+    `;
+    return this.#driver.findElement(By.xpath(packageXpath));
   }
-  async getStarterOrderQuantity() {
-    await this.#driver.wait(until.elementLocated(By.name("checkout")));
-    const starterOrderQuantity = this.#driver.findElement(
-      By.xpath(`/html/body/div[2]/div[2]/table/tbody/tr[1]/td[2]`)
-    );
-    return starterOrderQuantity.getText();
+  getQuantityDropdown(packageDiv) {
+    return packageDiv.findElement(By.name("quantity"));
+  }
+
+  getQuantityOptions(quantityDropdown) {
+    return quantityDropdown.findElements(By.css("option"));
+  }
+  getOrderBtn(packageDiv) {
+    return packageDiv.findElement(By.className("btn btn-primary"));
   }
   async getCheckout() {
     const checkout = this.#driver.findElement(By.name("checkout"));
