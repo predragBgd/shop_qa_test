@@ -8,21 +8,31 @@ const { assert, expect } = require("chai");
 const Homepage = require("../pages/homepage");
 const Register = require("../pages/register");
 const Login = require("../pages/login");
+const Chartpage = require("../pages/chart");
+const Checkoutpage = require("../pages/checkout");
+const Historypage = require("../pages/history");
 
 describe("Shop.qa.rs test", () => {
   let driver;
   let shopQaHomepage;
   let shopQaRegisterpage;
   let shopQaLoginPage;
+  let shopQaChartpage;
+  let shopQaCheckoutPage;
+  let shopQaHistoryPage;
 
+  const user = "Milan";
   const packageToAdd = "starter";
-  const packageQuantity = "2";
+  const packageQuantity = "5";
 
   before(() => {
     driver = new webdriver.Builder().forBrowser("chrome").build();
     shopQaHomepage = new Homepage(driver);
     shopQaRegisterpage = new Register(driver);
     shopQaLoginPage = new Login(driver);
+    shopQaChartpage = new Chartpage(driver);
+    shopQaCheckoutPage = new Checkoutpage(driver);
+    shopQaHistoryPage = new Historypage(driver);
   });
   after(async () => {
     // await driver.sleep(3000);
@@ -37,7 +47,7 @@ describe("Shop.qa.rs test", () => {
     expect(await shopQaRegisterpage.getRegistrationForm()).to.be.true;
   });
   it("Register user", async () => {
-    await shopQaRegisterpage.getFirstName().sendKeys("Milan");
+    await shopQaRegisterpage.getFirstName().sendKeys(user);
     await shopQaRegisterpage.getLastName().sendKeys("Pilic");
     await shopQaRegisterpage.getEmail().sendKeys("milan@loc.local");
     await shopQaRegisterpage.getUserName().sendKeys("Milance");
@@ -78,7 +88,53 @@ describe("Shop.qa.rs test", () => {
       })
     );
   });
+  it(`Open shoping chart`, async () => {
+    await shopQaChartpage.goToChartPage();
+    expect(await shopQaChartpage.getH1()).to.contain("Order");
+  });
+  it("Verifies items are in chart", async () => {
+    expect(await shopQaChartpage.getItemQuantity()).to.contain(packageQuantity);
+    expect(await shopQaChartpage.getOrderName()).to.contain(
+      packageToAdd.toUpperCase()
+    );
+  });
+  it("Verifies total price is correct", async () => {
+    const orderQuantity = await shopQaChartpage.getItemQuantity();
+    const itemPrice = Number(
+      (await shopQaChartpage.getItemPrice()).replace(/\D/g, "")
+    );
+    const totalItemPrice = Number(
+      (await shopQaChartpage.getTotalItemPrice()).replace(/\D/g, "")
+    );
+    const total = orderQuantity * itemPrice;
+    expect(total === totalItemPrice);
+  });
+  it("Verifies total checkout price is correct", async () => {
+    const totalItemPrice = Number(
+      (await shopQaChartpage.getTotalItemPrice()).replace("$", "")
+    );
+    const totalCheckoutPrice = Number(
+      (await shopQaChartpage.getTotalCheckoutPrice()).replace(/\D/g, "")
+    );
+    expect(totalItemPrice).of.be.eq(totalCheckoutPrice);
+  });
   it("Checkout", async () => {
-    await shopQaHomepage.getCheckout();
+    await shopQaChartpage.getCheckout();
+    expect(await shopQaCheckoutPage.getH2()).to.contain("Order #");
+  });
+  it("Verifies checkout success", async () => {
+    const orderNo = await shopQaCheckoutPage.getCheckoutOrderNumber();
+    await shopQaCheckoutPage.goToHistoryPage();
+    expect(await shopQaHistoryPage.getH1()).to.contain("Order History");
+    const historyRow = await shopQaHistoryPage.getHistoryRow(orderNo);
+    const historyStatus = await shopQaHistoryPage
+      .getHistoryStatus(historyRow)
+      .getText();
+    expect(historyStatus).to.be.equal("Ordered");
+  });
+  it("Logout", async () => {
+    await shopQaHomepage.goToHomePage();
+    await shopQaHomepage.logoutBtn(user);
+    assert.equal(await shopQaHomepage.getH1(), "Quality Assurance (QA) Shop");
   });
 });

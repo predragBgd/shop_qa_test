@@ -35,8 +35,10 @@ module.exports = class Homepage {
   getOrderBtn(packageDiv) {
     return packageDiv.findElement(By.className("btn btn-primary"));
   }
-  async getCheckout() {
-    const checkout = this.#driver.findElement(By.name("checkout"));
-    checkout.click();
+  async logoutBtn(user) {
+    const logoutBtn = await this.#driver.findElement(
+      By.linkText(`Logout ${user}`)
+    );
+    await logoutBtn.click();
   }
 };
